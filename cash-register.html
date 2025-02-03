@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kassa</title>
+  <style>
+    /* Basis lettergrootte en spacing iets verkleind */
+    body { 
+      font-family: Arial, sans-serif; 
+      padding: 20px; 
+      font-size: 16px; 
+      line-height: 1.4;
+    }
+    h1 {
+      font-size: 1.8em;
+      margin-bottom: 15px;
+    }
+    h2 {
+      font-size: 1.6em;
+      margin-bottom: 15px;
+    }
+    h3 {
+      font-size: 1.4em;
+      margin-bottom: 15px;
+    }
+    a {
+      font-size: 16px;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+    /* Inputvelden iets verkleind */
+    input[type="text"] {
+      font-size: 16px;
+      padding: 8px;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    /* Order-item styling iets verkleind */
+    .order-item { 
+      margin-bottom: 10px; 
+      font-size: 16px;
+    }
+    .order-details { 
+      margin-left: 10px; 
+      font-size: 16px;
+    }
+    .paid { 
+      text-decoration: line-through; 
+      color: green; 
+    }
+    /* Knoppen verkleind */
+    .reset-button { 
+      background-color: green; 
+      color: white; 
+      padding: 8px 12px; 
+      border: none; 
+      cursor: pointer; 
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    .export-button { 
+      background-color: #4CAF50; 
+      color: white; 
+      padding: 8px 12px; 
+      border: none; 
+      cursor: pointer; 
+      font-size: 16px;
+    }
+    /* Tabs */
+    .tabs { 
+      margin-top: 20px; 
+    }
+    .tab { 
+      margin: 5px 0; 
+      cursor: pointer; 
+      display: inline-block; 
+      padding: 10px 15px; 
+      background-color: #f0f0f0; 
+      font-size: 16px;
+    }
+    .tab-content { 
+      display: none; 
+      margin-top: 20px; 
+      font-size: 16px;
+    }
+    .tab-content.active { 
+      display: block; 
+    }
+    /* Tabel iets kleiner */
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 20px; 
+      font-size: 16px;
+    }
+    table, th, td { 
+      border: 1px solid black; 
+    }
+    th, td { 
+      padding: 10px; 
+      text-align: left; 
+    }
+    #total-sum { 
+      margin-top: 20px; 
+      font-weight: bold; 
+      font-size: 16px; 
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Kassa</h1>
+
+  <a href="index.html">Terug naar het bestelsysteem</a><br>
+  <a href="orders.html">Bekijk alle bestellingen</a><br><br>
+
+  <h2>Rekening opstellen</h2>
+  <label for="search-table">Tafelnummer:</label>
+  <input type="text" id="search-table" placeholder="Vul tafelnummer in" oninput="loadOrders()">
+  
+  <h2>Bestellingen voor Tafel: <span id="table-number">-</span></h2>
+  <ul id="order-list"></ul>
+
+  <h3>Totaal te betalen: €<span id="total">0.00</span></h3>
+
+  <button class="reset-button" id="reset-button" style="display: none;" onclick="resetTable()">Afrekenen</button>
+
+  <button id="toggle-overview" onclick="toggleOverview()" style="font-size:16px; padding:8px 12px; margin-top:10px;">Toon/Verberg Overzicht</button>
+
+  <div class="tab-content" id="overview-tab">
+      <table>
+          <thead>
+              <tr>
+                  <th>Factuurnummer</th>
+                  <th>Tafelnummer</th>
+                  <th>Bestellingen</th>
+                  <th>Totaal Bedrag</th>
+                  <th>Datum</th>
+              </tr>
+          </thead>
+          <tbody id="overview-table-body"></tbody>
+      </table>
+
+      <div id="total-sum">Totaal Overzicht: €<span id="total-sum-value">0.00</span></div>
+  </div>
+
+  <script>
+    // Laad de onbetaalde bestellingen voor de ingevoerde tafel en toon deze als een gecombineerde rekening.
+    function loadOrders() {
+      let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
+      let orderList = document.getElementById("order-list");
+      let tableNumberInput = document.getElementById("search-table").value.trim();
+      document.getElementById("table-number").textContent = tableNumberInput || "-";
+
+      // Filter de onbetaalde bestellingen voor deze tafel.
+      let filteredOrders = allOrders.filter(order => {
+        let orderDetails = order.order.split(", ");
+        let table = orderDetails.find(detail => detail.startsWith("Tafel:"));
+        return table && table.includes(tableNumberInput) && !order.paid;
+      });
+
+      // Combineer de bestellingen voor deze tafel.
+      let combinedOrder = {
+        details: [],
+        total: 0
+      };
+
+      filteredOrders.forEach(order => {
+        combinedOrder.details.push(order.order);
+        combinedOrder.total += order.total;
+      });
+
+      // Toon de gecombineerde rekening
+      orderList.innerHTML = "";
+      if (filteredOrders.length > 0) {
+        let li = document.createElement("li");
+        li.classList.add("order-item");
+        let orderDetails = document.createElement("span");
+        orderDetails.classList.add("order-details");
+        orderDetails.textContent = combinedOrder.details.join(" | ") + " - Totaal: €" + combinedOrder.total.toFixed(2);
+        li.appendChild(orderDetails);
+        orderList.appendChild(li);
+      }
+
+      // Update het totaalbedrag
+      document.getElementById("total").textContent = combinedOrder.total.toFixed(2);
+
+      // Toon de afrekenknop als er bestellingen zijn voor deze tafel
+      document.getElementById("reset-button").style.display = filteredOrders.length > 0 ? 'inline-block' : 'none';
+
+      updateOverviewTab();
+    }
+
+    // Markeer de onbetaalde bestellingen voor de ingevoerde tafel als betaald.
+    // Hierbij krijgt de gehele betaling een uniek factuurnummer (billId) en wordt de datum/tijd vastgelegd.
+    function resetTable() {
+      let tableNumberInput = document.getElementById("search-table").value.trim();
+
+      if (!tableNumberInput) {
+        alert("Vul een tafelnummer in!");
+        return;
+      }
+
+      let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
+      
+      // Maak een uniek factuurnummer, bv. gebaseerd op timestamp.
+      let billId = 'F' + new Date().getTime();
+      let paymentDate = new Date().toLocaleString();
+
+      // Markeer de onbetaalde bestellingen voor deze tafel als betaald en ken het factuurnummer en datum toe.
+      allOrders.forEach(order => {
+        let orderDetails = order.order.split(", ");
+        let table = orderDetails.find(detail => detail.startsWith("Tafel:"));
+        if (table && table.includes(tableNumberInput) && !order.paid) {
+          order.paid = true; 
+          order.billId = billId; // Uniek factuurnummer voor deze betaling
+          order.paymentDate = paymentDate; // Vastgelegde datum/tijd
+        }
+      });
+
+      // Sla de wijzigingen op in localStorage.
+      localStorage.setItem("orders", JSON.stringify(allOrders));
+
+      // Vernieuw de weergave zodat de rekening voor de tafel weer leeg is (en een nieuwe rekening kan starten).
+      loadOrders();
+    }
+
+    // Werk het overzichtstabblad bij: groepeer betaalde bestellingen per factuur (billId).
+    function updateOverviewTab() {
+      let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
+      let overviewTableBody = document.getElementById("overview-table-body");
+      let totalOverviewAmount = 0;
+      overviewTableBody.innerHTML = ""; // Maak de tabel leeg
+
+      // Groepeer betaalde bestellingen per factuurnummer.
+      let bills = {};
+
+      allOrders.forEach(order => {
+        if (order.paid && order.billId) {
+          // Zorg ervoor dat er per factuur een eigen groep is, ook als de tafel meerdere keren heeft afgerekend.
+          if (!bills[order.billId]) {
+            // Probeer het tafelnummer uit de order te halen (bijvoorbeeld "Tafel: 3")
+            let orderDetails = order.order.split(", ");
+            let tableDetail = orderDetails.find(detail => detail.startsWith("Tafel:"));
+            bills[order.billId] = {
+              table: tableDetail || "Onbekend",
+              orders: [],
+              total: 0,
+              paymentDate: order.paymentDate || ""
+            };
+          }
+          bills[order.billId].orders.push(order.order);
+          bills[order.billId].total += order.total;
+        }
+      });
+
+      // Vul de overzichtstabel met de gefactureerde rekeningen
+      for (let billId in bills) {
+        let row = document.createElement("tr");
+        let orderDetails = bills[billId].orders.join(" | ");
+        let total = bills[billId].total.toFixed(2);
+        row.innerHTML = `<td>${billId}</td>
+                         <td>${bills[billId].table}</td>
+                         <td>${orderDetails}</td>
+                         <td>€${total}</td>
+                         <td>${bills[billId].paymentDate}</td>`;
+        overviewTableBody.appendChild(row);
+        totalOverviewAmount += bills[billId].total;
+      }
+
+      // Toon het totaal van alle afgeronde rekeningen.
+      document.getElementById("total-sum-value").textContent = totalOverviewAmount.toFixed(2);
+    }
+
+    // Toon of verberg het overzichtstabblad
+    function toggleOverview() {
+      let overviewTab = document.getElementById("overview-tab");
+      if (overviewTab.style.display === "none" || overviewTab.style.display === "") {
+        overviewTab.style.display = "block";
+      } else {
+        overviewTab.style.display = "none";
+      }
+    }
+
+    // Initialiseer de pagina
+    window.onload = loadOrders;
+  </script>
+
+</body>
+</html>

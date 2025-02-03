@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bestelsysteem</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      padding: 20px; 
+    }
+    /* Invulvelden voor naam en tafelnummer groter en met wat extra styling */
+    input[type="text"] {
+      font-size: 16px;
+      padding: 8px;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      width: 250px;
+      margin-bottom: 10px;
+    }
+    /* Maak de menu items groen, groter en met wat meer padding */
+    .menu-item { 
+      background-color: green;
+      color: white;
+      font-size: 16px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      margin: 5px;
+      cursor: pointer; 
+    }
+    /* Style voor de bestel/afreken knop: rood */
+    .checkout-button {
+      background-color: red;
+      color: white;
+      font-size: 16px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    /* Styling voor de geselecteerde bestelling items */
+    .order-list {
+      margin-top: 20px;
+      list-style-type: none;
+      padding: 0;
+    }
+    .order-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #f2f2f2;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .remove-item {
+      cursor: pointer;
+      color: red;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Bestelsysteem</h1>
+  
+  <label for="name">Naam:</label>
+  <input type="text" id="name" placeholder="Vul je naam in"><br><br>
+
+  <label for="table">Tafelnummer:</label>
+  <input type="text" id="table" placeholder="Vul tafelnummer in"><br><br>
+
+  <h2>Menu</h2>
+  <div id="menu">
+    <!-- Drankjes -->
+    <h3>Drankjes</h3>
+    <button class="menu-item" onclick="addItem('Cava fles', 20, 'drink')">Cava fles - €20</button>
+    <button class="menu-item" onclick="addItem('Cava glas', 4, 'drink')">Cava glas - €4</button>
+    <button class="menu-item" onclick="addItem('Witte wijn fles', 18, 'drink')">Witte wijn fles - €18</button>
+    <button class="menu-item" onclick="addItem('Witte wijn glas', 3.8, 'drink')">Witte wijn glas - €3.80</button>
+    <button class="menu-item" onclick="addItem('Rode wijn fles', 20, 'drink')">Rode wijn fles - €20</button>
+    <button class="menu-item" onclick="addItem('Rode wijn glas', 4.4, 'drink')">Rode wijn glas - €4.40</button>
+    <button class="menu-item" onclick="addItem('Kirr Royale', 4.5, 'drink')">Kirr Royale - €4.50</button>
+    <button class="menu-item" onclick="addItem('Cola/Zero', 2.5, 'drink')">Cola/Zero - €2.50</button>
+    <button class="menu-item" onclick="addItem('Limonade', 2.5, 'drink')">Limonade - €2.50</button>
+    <button class="menu-item" onclick="addItem('Fruit/Appelsap', 2.5, 'drink')">Fruit/Appelsap - €2.50</button>
+    <button class="menu-item" onclick="addItem('Stella', 2.5, 'drink')">Stella - €2.50</button>
+    <button class="menu-item" onclick="addItem('Kriek', 3, 'drink')">Kriek - €3.00</button>
+    <button class="menu-item" onclick="addItem('Affligem', 3.5, 'drink')">Affligem - €3.50</button>
+    <button class="menu-item" onclick="addItem('Affligem 0.0', 3, 'drink')">Affligem 0.0 - €3.00</button>
+    <button class="menu-item" onclick="addItem('Duvel', 4, 'drink')">Duvel - €4.00</button>
+
+    <!-- Eten (voorgerecht, hoofdgerechten, etc.) -->
+    <h3>Voorgerecht</h3>
+    <button class="menu-item" onclick="addItem('Kaaskroketten', 6, 'food')">Kaaskroketten - €6.00</button>
+    <button class="menu-item" onclick="addItem('Kaaskroketten (kind)', 4, 'food')">Kaaskroketten (kind) - €4.00</button>
+
+    <h3>Volwassenen</h3>
+    <button class="menu-item" onclick="addItem('Spaghetti', 15, 'food')">Spaghetti - €15.00</button>
+    <button class="menu-item" onclick="addItem('Spaghetti veggie', 15, 'food')">Spaghetti veggie - €15.00</button>
+    <button class="menu-item" onclick="addItem('Stoofvlees', 17, 'food')">Stoofvlees - €17.00</button>
+
+    <h3>Kinderen</h3>
+    <button class="menu-item" onclick="addItem('Spaghetti (kind)', 11, 'food')">Spaghetti (kind) - €11.00</button>
+    <button class="menu-item" onclick="addItem('Spaghetti veggie (kind)', 11, 'food')">Spaghetti veggie (kind) - €11.00</button>
+    <button class="menu-item" onclick="addItem('Stoofvlees (kind)', 13, 'food')">Stoofvlees (kind) - €13.00</button>
+
+    <h3>Dessert</h3>
+    <button class="menu-item" onclick="addItem('Chocomousse', 4, 'food')">Chocomousse - €4.00</button>
+    <button class="menu-item" onclick="addItem('Brownie met ijs', 5, 'food')">Brownie met ijs - €5.00</button>
+    <button class="menu-item" onclick="addItem('Brownie', 3, 'food')">Brownie - €3.00</button>
+    <button class="menu-item" onclick="addItem('Bol ijs', 2, 'food')">Bol ijs - €2.00</button>
+    <button class="menu-item" onclick="addItem('Koffie en thee', 2.5, 'food')">Koffie en thee - €2.50</button>
+
+    <!-- Take-away opties -->
+    <h3>Volwassenen (Take-away)</h3>
+    <button class="menu-item" onclick="addItem('Spaghetti (take-away)', 14, 'food')">Spaghetti - €14.00</button>
+    <button class="menu-item" onclick="addItem('Spaghetti veggie (take-away)', 14, 'food')">Spaghetti veggie - €14.00</button>
+    <button class="menu-item" onclick="addItem('Stoofvlees (take-away)', 14, 'food')">Stoofvlees - €14.00</button>
+
+    <h3>Kinderen (Take-away)</h3>
+    <button class="menu-item" onclick="addItem('Spaghetti (kind take-away)', 10, 'food')">Spaghetti - €10.00</button>
+    <button class="menu-item" onclick="addItem('Spaghetti veggie (kind take-away)', 10, 'food')">Spaghetti veggie - €10.00</button>
+    <button class="menu-item" onclick="addItem('Stoofvlees (kind take-away)', 10, 'food')">Stoofvlees - €10.00</button>
+
+    <h3>Dessert (Take-away)</h3>
+    <button class="menu-item" onclick="addItem('Chocomousse (take-away)', 4, 'food')">Chocomousse - €4.00</button>
+  </div>
+
+  <h3>Geselecteerde bestelling:</h3>
+  <ul id="order-list" class="order-list"></ul>
+  
+  <button class="checkout-button" onclick="placeOrder()">Bestelling plaatsen</button>
+
+  <h2>Bestellingen</h2>
+  <a href="orders.html">Bekijk alle bestellingen</a><br>
+  <a href="cash-register.html">Naar de kassa</a>
+
+  <script>
+    // De array waarin geselecteerde items worden opgeslagen.
+    let selectedItems = [];
+
+    // Voeg een item toe, met een extra parameter voor het type ('food' of 'drink')
+    function addItem(item, price, type) {
+      selectedItems.push({ item, price, type });
+      updateOrderList();
+    }
+
+    // Update de lijst met geselecteerde items
+    function updateOrderList() {
+      const list = document.getElementById("order-list");
+      list.innerHTML = "";
+      selectedItems.forEach((order, index) => {
+        const li = document.createElement("li");
+        li.classList.add("order-item");
+
+        const itemText = document.createElement("span");
+        itemText.textContent = `${order.item} - €${order.price} (${order.type})`;
+
+        const removeBtn = document.createElement("span");
+        removeBtn.classList.add("remove-item");
+        removeBtn.textContent = "❌";
+        removeBtn.onclick = () => removeItem(index);
+
+        li.appendChild(itemText);
+        li.appendChild(removeBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function removeItem(index) {
+      selectedItems.splice(index, 1);
+      updateOrderList();
+    }
+
+    // Plaats de bestelling en splits op in eten en drinken (indien beide aanwezig zijn)
+    function placeOrder() {
+      const name = document.getElementById("name").value;
+      const table = document.getElementById("table").value;
+
+      if (!name || !table) {
+        alert("Vul zowel je naam als tafelnummer in!");
+        return;
+      }
+
+      // Verkrijg de huidige tijd
+      const currentTime = new Date();
+      const hours = currentTime.getHours().toString().padStart(2, '0');
+      const minutes = currentTime.getMinutes().toString().padStart(2, '0');
+      const seconds = currentTime.getSeconds().toString().padStart(2, '0');
+      const time = `${hours}:${minutes}:${seconds}`;
+
+      // Scheid de geselecteerde items in eten en drinken
+      const foodItems = selectedItems.filter(item => item.type === 'food');
+      const drinkItems = selectedItems.filter(item => item.type === 'drink');
+
+      // Haal de huidige bestellingen uit localStorage of maak een nieuwe lijst aan
+      let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
+
+      // Voeg een bestelling voor eten toe, indien aanwezig
+      if (foodItems.length > 0) {
+        const foodOrderText = `Naam: ${name}, Tafel: ${table}, Eten: ${foodItems.map(i => i.item).join(", ")}, Tijd: ${time}`;
+        const foodTotal = foodItems.reduce((total, item) => total + item.price, 0);
+        allOrders.push({ order: foodOrderText, completed: false, total: foodTotal, type: 'food' });
+      }
+
+      // Voeg een bestelling voor drinken toe, indien aanwezig
+      if (drinkItems.length > 0) {
+        const drinkOrderText = `Naam: ${name}, Tafel: ${table}, Drinken: ${drinkItems.map(i => i.item).join(", ")}, Tijd: ${time}`;
+        const drinkTotal = drinkItems.reduce((total, item) => total + item.price, 0);
+        allOrders.push({ order: drinkOrderText, completed: false, total: drinkTotal, type: 'drink' });
+      }
+
+      // Sla de nieuwe lijst van bestellingen op in localStorage
+      localStorage.setItem("orders", JSON.stringify(allOrders));
+
+      // Reset formulier en geselecteerde items
+      selectedItems = [];
+      updateOrderList();
+      document.getElementById("name").value = "";
+      document.getElementById("table").value = "";
+    }
+  </script>
+
+</body>
+</html>

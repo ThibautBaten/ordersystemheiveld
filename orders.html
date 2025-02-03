@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bestellingen</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .remove-item {
+            cursor: pointer;
+            color: red;
+            font-size: 18px;
+            margin-left: 10px;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .tab {
+            display: none;
+        }
+        .tab.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html">Terug naar bestelsysteem</a>
+    <h1>Bestellingen</h1>
+    
+    <button onclick="showTab('food')">Eten</button>
+    <button onclick="showTab('drinks')">Drinken</button>
+    
+    <div id="food" class="tab active">
+        <h2>Eten</h2>
+        <ul id="food-orders"></ul>
+    </div>
+    
+    <div id="drinks" class="tab">
+        <h2>Drinken</h2>
+        <ul id="drink-orders"></ul>
+    </div>
+    
+    <script>
+        function loadOrders() {
+            let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
+            let foodList = document.getElementById("food-orders");
+            let drinkList = document.getElementById("drink-orders");
+            foodList.innerHTML = "";
+            drinkList.innerHTML = "";
+
+            allOrders.forEach((order, index) => {
+                let li = document.createElement("li");
+                li.classList.add("order-item");
+
+                let itemText = document.createElement("span");
+                itemText.textContent = order.order;
+                if (order.completed) {
+                    itemText.classList.add("completed");
+                }
+
+                let checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.checked = order.completed;
+                checkbox.onclick = () => toggleCompleted(index);
+
+                let removeBtn = document.createElement("span");
+                removeBtn.classList.add("remove-item");
+                removeBtn.textContent = "❌";
+                removeBtn.onclick = () => removeOrder(index);
+
+                li.appendChild(checkbox);
+                li.appendChild(itemText);
+                li.appendChild(removeBtn);
+
+                if (order.type === "food") {
+                    foodList.appendChild(li);
+                } else if (order.type === "drink") {
+                    drinkList.appendChild(li);
+                }
+            });
+        }
+
+        function toggleCompleted(index) {
+            let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
+            allOrders[index].completed = !allOrders[index].completed;
+            localStorage.setItem("orders", JSON.stringify(allOrders));
+            loadOrders();
+        }
+
+        function removeOrder(index) {
+            let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
+            allOrders.splice(index, 1);
+            localStorage.setItem("orders", JSON.stringify(allOrders));
+            loadOrders();
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+            document.getElementById(tabName).classList.add("active");
+        }
+
+        window.onload = loadOrders;
+    </script>
+</body>
+</html>
